@@ -1,25 +1,26 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "8c955a368273071c70301732af753c12"
-application_url = "https://comparing-motel-unlike-fold.trycloudflare.com"
+application_url = "https://a3e9-186-154-52-247.ngrok-free.app"
 embedded = true
 name = "downselly"
 handle = "downselly"
 
 [build]
-include_config_on_deploy = true
 automatically_update_urls_on_dev = true
+dev_store_url = "printemps-a-paris.myshopify.com"
+include_config_on_deploy = true
 
 [webhooks]
 api_version = "2025-01"
 
   [[webhooks.subscriptions]]
-  topics = [ "app/uninstalled" ]
-  uri = "/webhooks/app/uninstalled"
-
-  [[webhooks.subscriptions]]
   topics = [ "app/scopes_update" ]
   uri = "/webhooks/app/scopes_update"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
@@ -27,9 +28,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://comparing-motel-unlike-fold.trycloudflare.com/auth/callback",
-  "https://comparing-motel-unlike-fold.trycloudflare.com/auth/shopify/callback",
-  "https://comparing-motel-unlike-fold.trycloudflare.com/api/auth/callback"
+  "https://a3e9-186-154-52-247.ngrok-free.app/auth/callback",
+  "https://a3e9-186-154-52-247.ngrok-free.app/auth/shopify/callback",
+  "https://a3e9-186-154-52-247.ngrok-free.app/api/auth/callback"
 ]
 
 [pos]

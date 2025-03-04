@@ -1,62 +1,67 @@
-import { useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { useFetcher } from "@remix-run/react";
+import { json, useLoaderData } from "@remix-run/react";
 import {
   Page,
   Layout,
   Text,
   Card,
-  Button,
   BlockStack,
-  Box,
   List,
   Link,
   InlineStack,
 } from "@shopify/polaris";
-import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
+import { TitleBar } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await authenticate.admin(request);
+  const { admin } = await authenticate.admin(request);
 
-  return null;
+  const response = await admin.graphql(
+    `#graphql
+      query ShopMetafield($namespace: String!, $key: String!) {
+        shop {
+          data: metafield(namespace: $namespace, key: $key) {
+            value
+          }
+        }
+      }
+    `,
+    {
+      variables: {
+        "namespace": "example_namespace",
+        "key": "example_key"
+      },
+    },
+  );
+
+  const responseJson = await response.json();
+  
+  console.log(responseJson);
+
+  return json(responseJson);
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { admin } = await authenticate.admin(request);
-  const color = ["Red", "Orange", "Yellow", "Green"][
-    Math.floor(Math.random() * 4)
-  ];
+
   const response = await admin.graphql(
     `#graphql
-      mutation populateProduct($product: ProductCreateInput!) {
-        productCreate(product: $product) {
-          product {
-            id
-            title
-            handle
-            status
-            variants(first: 10) {
-              edges {
-                node {
-                  id
-                  price
-                  barcode
-                  createdAt
-                }
-              }
-            }
+      query ShopMetafield($namespace: String!, $key: String!) {
+        shop {
+          data: metafield(namespace: $namespace, key: $key) {
+            value
           }
         }
-      }`,
+      }
+    `,
     {
       variables: {
-        product: {
-          title: `${color} Snowboard`,
-        },
+        "namespace": "downsell",
+        "key": "data"
       },
     },
   );
+
   const responseJson = await response.json();
 
   const product = responseJson.data!.productCreate!.product!;
@@ -92,30 +97,17 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function Index() {
-  const fetcher = useFetcher<typeof action>();
+  /* const isLoading = ["loading", "submitting"].includes(fetcher.state) && fetcher.formMethod === "POST"; */
 
-  const shopify = useAppBridge();
-  const isLoading = ["loading", "submitting"].includes(fetcher.state) && fetcher.formMethod === "POST";
+  const data = useLoaderData<typeof loader>();
+  console.log(data);
   
-  const productId = fetcher.data?.product?.id.replace(
-    "gid://shopify/Product/",
-    "",
-  );
-
-  useEffect(() => {
-    if (productId) {
-      shopify.toast.show("Product created");
-    }
-  }, [productId, shopify]);
   
-  const generateProduct = () => fetcher.submit({}, { method: "POST" });
+  /* const generateProduct = () => fetcher.submit({}, { method: "POST" }); */
 
   return (
     <Page>
       <TitleBar title="Remix app template">
-        <button variant="primary" onClick={generateProduct}>
-          Generate a product
-        </button>
       </TitleBar>
       <BlockStack gap="500">
         <Layout>
@@ -168,60 +160,6 @@ export default function Index() {
                     mutation in our API references.
                   </Text>
                 </BlockStack>
-                <InlineStack gap="300">
-                  <Button loading={isLoading} onClick={generateProduct}>
-                    Generate a product
-                  </Button>
-                  {fetcher.data?.product && (
-                    <Button
-                      url={`shopify:admin/products/${productId}`}
-                      target="_blank"
-                      variant="plain"
-                    >
-                      View product
-                    </Button>
-                  )}
-                </InlineStack>
-                {fetcher.data?.product && (
-                  <>
-                    <Text as="h3" variant="headingMd">
-                      {" "}
-                      productCreate mutation
-                    </Text>
-                    <Box
-                      padding="400"
-                      background="bg-surface-active"
-                      borderWidth="025"
-                      borderRadius="200"
-                      borderColor="border"
-                      overflowX="scroll"
-                    >
-                      <pre style={{ margin: 0 }}>
-                        <code>
-                          {JSON.stringify(fetcher.data.product, null, 2)}
-                        </code>
-                      </pre>
-                    </Box>
-                    <Text as="h3" variant="headingMd">
-                      {" "}
-                      productVariantsBulkUpdate mutation
-                    </Text>
-                    <Box
-                      padding="400"
-                      background="bg-surface-active"
-                      borderWidth="025"
-                      borderRadius="200"
-                      borderColor="border"
-                      overflowX="scroll"
-                    >
-                      <pre style={{ margin: 0 }}>
-                        <code>
-                          {JSON.stringify(fetcher.data.variant, null, 2)}
-                        </code>
-                      </pre>
-                    </Box>
-                  </>
-                )}
               </BlockStack>
             </Card>
           </Layout.Section>
