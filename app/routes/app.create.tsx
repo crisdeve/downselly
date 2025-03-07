@@ -1,101 +1,97 @@
-import { useEffect } from "react";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, useFetcher, useLoaderData } from "@remix-run/react";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node"
+import { useFetcher, useLoaderData } from "@remix-run/react"
+import { json } from "@remix-run/node"
 import {
+  Button,
+  Card,
   Page,
-} from "@shopify/polaris";
-import { TitleBar } from "@shopify/app-bridge-react";
-import { authenticate } from "../shopify.server";
+  Text,
+} from "@shopify/polaris"
+import { authenticate } from "../shopify.server"
+import campaign from '../utils/shop'
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
+  const { admin } = await authenticate.admin(request)
 
   const response = await admin.graphql(
     `query {
       shop {
         id
-        name
-        currencyCode
-        checkoutApiSupported
-        taxesIncluded
-        resourceLimits {
-          maxProductVariants
+      }
+    }`,
+  )
+
+  const responseJson = await response.json()
+
+  return json(responseJson)
+}
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { admin } = await authenticate.admin(request)
+  const newCampaign = campaign.create(null)
+
+  const response = await admin.graphql(`
+    mutation MetafieldsSet($metafields: [MetafieldsSetInput!]!) {
+      metafieldsSet(metafields: $metafields) {
+        metafields {
+          value
+        }
+        userErrors {
+          field
+          message
+          code
         }
       }
     }`,
-  );
-
-  const responseJson = await response.json();
-
-  console.log(responseJson);
-
-  return json(responseJson);
-};
-
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const { admin } = await authenticate.admin(request);
-
-  const response = await admin.graphql(
-    `#graphql
-      mutation MetafieldsSet($metafields: [MetafieldsSetInput!]!) {
-        metafieldsSet(metafields: $metafields) {
-          metafields {
-            key
-            namespace
-            value
-            createdAt
-            updatedAt
-          }
-          userErrors {
-            field
-            message
-            code
-          }
-        }
-      }
-    `,
     {
       variables: {
         metafields: [
           {
-            "key": "example_key",
-            "namespace": "example_namespace",
+            "key": campaign.key,
+            "namespace": campaign.namespace,
             "ownerId": "gid://shopify/Shop/85931655516",
-            "type": "single_line_text_field",
-            "value": "Example Value"
+            "type": campaign.type,
+            "value": newCampaign
           }
         ]
       },
     },
-  );
+  )
 
-  const responseJson = await response.json();
-  console.log(responseJson)
+  const responseJson = await response.json()
 
-  return responseJson
-};
+  return {
+    metafields: responseJson!.data!.metafieldsSet!.metafields,
+  }
+}
 
 export default function Index() {
-  const fetcher = useFetcher<typeof action>();
+  const fetcher = useFetcher<typeof action>()
 
-  /* const shopify = useAppBridge(); */
-  const isLoading = ["loading", "submitting"].includes(fetcher.state) && fetcher.formMethod === "POST";
-  const data = useLoaderData<typeof loader>();
-  console.log(data);
+  /* const shopify = useAppBridge() */
+  const isLoading = ["loading", "submitting"].includes(fetcher.state) && fetcher.formMethod === "POST"
+  const { data } = useLoaderData<typeof loader>()
+  console.log(data)
 
-  useEffect(() => {
-    /* shopify.toast.show("Product created"); */
-  }, []);
+  /* useEffect(() => {
+    shopify.toast.show("Product created")
+  }, [campaignData, shopify]) */
   
-  const generateProduct = () => fetcher.submit({}, { method: "POST" });
+  const generate = () => fetcher.submit({}, { method: "POST" })
 
   return (
-    <Page>
-      <TitleBar title="Create a campaign">
-        <button variant="primary" onClick={generateProduct}>
-          Generate campaign
-        </button>
-      </TitleBar>
+    <Page
+      backAction={{content: 'Campaigns', url: '/app/campaigns'}}
+      title="Create a campaign"
+      primaryAction={
+      <Button variant="primary" loading={isLoading} onClick={generate}>
+        Create
+      </Button>}>
+      <Card>
+        <Text as="h2" variant="bodyMd">
+          Content inside a card
+        </Text>
+      </Card>
     </Page>
-  );
+  )
 }

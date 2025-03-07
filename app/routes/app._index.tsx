@@ -8,10 +8,10 @@ import {
   Card,
   Button,
   BlockStack,
-  Box,
   List,
   Link,
   InlineStack,
+  Image,
 } from "@shopify/polaris";
 import { TitleBar, useAppBridge } from "@shopify/app-bridge-react";
 import { authenticate } from "../shopify.server";
@@ -108,13 +108,13 @@ export default function Index() {
     }
   }, [productId, shopify]);
   
-  const generateProduct = () => fetcher.submit({}, { method: "POST" });
+  /* const generateProduct = () => fetcher.submit({}, { method: "POST" }); */
 
   return (
     <Page>
-      <TitleBar title="Remix app template">
-        <button variant="primary" onClick={generateProduct}>
-          Generate a product
+      <TitleBar title="Downselly 💸">
+        <button variant="primary">
+          Generate a campaign
         </button>
       </TitleBar>
       <BlockStack gap="500">
@@ -124,53 +124,33 @@ export default function Index() {
               <BlockStack gap="500">
                 <BlockStack gap="200">
                   <Text as="h2" variant="headingMd">
-                    Congrats on creating a new Shopify app 🎉
+                    Boost Your Conversions with Smart Downselling Strategies
                   </Text>
+                  <Image
+                    alt="render downsell"
+                    source="https://sandrafp.com/wp-content/uploads/2023/11/The-Downsell-01.png"
+                  />
                   <Text variant="bodyMd" as="p">
-                    This embedded app template uses{" "}
-                    <Link
-                      url="https://shopify.dev/docs/apps/tools/app-bridge"
-                      target="_blank"
-                      removeUnderline
-                    >
-                      App Bridge
-                    </Link>{" "}
-                    interface examples like an{" "}
-                    <Link url="/app/additional" removeUnderline>
-                      additional page in the app nav
-                    </Link>
-                    , as well as an{" "}
-                    <Link
-                      url="https://shopify.dev/docs/api/admin-graphql"
-                      target="_blank"
-                      removeUnderline
-                    >
-                      Admin GraphQL
-                    </Link>{" "}
-                    mutation demo, to provide a starting point for app
-                    development.
+                    Not every customer is ready to make a big purchase right away,
+                    and that’s where downselling becomes your best ally.
+                    This sales technique helps you recover hesitant buyers
+                    by offering them more affordable alternatives or personalized discounts at the right moment.
                   </Text>
                 </BlockStack>
                 <BlockStack gap="200">
                   <Text as="h3" variant="headingMd">
-                    Get started with products
+                    Get started 🚀
                   </Text>
-                  <Text as="p" variant="bodyMd">
-                    Generate a product with GraphQL and get the JSON output for
-                    that product. Learn more about the{" "}
-                    <Link
-                      url="https://shopify.dev/docs/api/admin-graphql/latest/mutations/productCreate"
-                      target="_blank"
-                      removeUnderline
-                    >
-                      productCreate
-                    </Link>{" "}
-                    mutation in our API references.
-                  </Text>
+                  <List type="bullet">
+                    <List.Item>Reduce cart abandonment by presenting budget-friendly options to undecided shoppers.</List.Item>
+                    <List.Item>Maximize every sales opportunity, even when a customer declines the initial offer.</List.Item>
+                    <List.Item>Build customer loyalty by showing that your store adapts to their needs and budget.</List.Item>
+                  </List>
                 </BlockStack>
+
                 <InlineStack gap="300">
-                  <Button loading={isLoading} onClick={generateProduct}>
-                    Generate a product
+                  <Button loading={isLoading}>
+                    Generate
                   </Button>
                   {fetcher.data?.product && (
                     <Button
@@ -182,49 +162,10 @@ export default function Index() {
                     </Button>
                   )}
                 </InlineStack>
-                {fetcher.data?.product && (
-                  <>
-                    <Text as="h3" variant="headingMd">
-                      {" "}
-                      productCreate mutation
-                    </Text>
-                    <Box
-                      padding="400"
-                      background="bg-surface-active"
-                      borderWidth="025"
-                      borderRadius="200"
-                      borderColor="border"
-                      overflowX="scroll"
-                    >
-                      <pre style={{ margin: 0 }}>
-                        <code>
-                          {JSON.stringify(fetcher.data.product, null, 2)}
-                        </code>
-                      </pre>
-                    </Box>
-                    <Text as="h3" variant="headingMd">
-                      {" "}
-                      productVariantsBulkUpdate mutation
-                    </Text>
-                    <Box
-                      padding="400"
-                      background="bg-surface-active"
-                      borderWidth="025"
-                      borderRadius="200"
-                      borderColor="border"
-                      overflowX="scroll"
-                    >
-                      <pre style={{ margin: 0 }}>
-                        <code>
-                          {JSON.stringify(fetcher.data.variant, null, 2)}
-                        </code>
-                      </pre>
-                    </Box>
-                  </>
-                )}
               </BlockStack>
             </Card>
           </Layout.Section>
+
           <Layout.Section variant="oneThird">
             <BlockStack gap="500">
               <Card>

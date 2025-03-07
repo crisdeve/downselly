@@ -1,83 +1,57 @@
+import type { LoaderFunctionArgs } from "@remix-run/node"
+import { json } from "@remix-run/node"
 import {
-  Box,
   Card,
-  Layout,
-  Link,
-  List,
   Page,
-  Text,
-  BlockStack,
-} from "@shopify/polaris";
-import { TitleBar } from "@shopify/app-bridge-react";
+  Button,
+} from "@shopify/polaris"
+import { authenticate } from "../shopify.server"
+import campaign from '../utils/shop'
+import { useLoaderData } from "@remix-run/react"
+import EmptyCampaigns from '../components/EmptyData'
+import ListCampaigns from '../components/ListCampaigns'
 
-export default function AdditionalPage() {
-  return (
-    <Page>
-      <TitleBar title="Additional page" />
-      <Layout>
-        <Layout.Section>
-          <Card>
-            <BlockStack gap="300">
-              <Text as="p" variant="bodyMd">
-                The app template comes with an additional page which
-                demonstrates how to create multiple pages within app navigation
-                using{" "}
-                <Link
-                  url="https://shopify.dev/docs/apps/tools/app-bridge"
-                  target="_blank"
-                  removeUnderline
-                >
-                  App Bridge
-                </Link>
-                .
-              </Text>
-              <Text as="p" variant="bodyMd">
-                To create your own page and have it show up in the app
-                navigation, add a page inside <Code>app/routes</Code>, and a
-                link to it in the <Code>&lt;NavMenu&gt;</Code> component found
-                in <Code>app/routes/app.jsx</Code>.
-              </Text>
-            </BlockStack>
-          </Card>
-        </Layout.Section>
-        <Layout.Section variant="oneThird">
-          <Card>
-            <BlockStack gap="200">
-              <Text as="h2" variant="headingMd">
-                Resources
-              </Text>
-              <List>
-                <List.Item>
-                  <Link
-                    url="https://shopify.dev/docs/apps/design-guidelines/navigation#app-nav"
-                    target="_blank"
-                    removeUnderline
-                  >
-                    App nav best practices
-                  </Link>
-                </List.Item>
-              </List>
-            </BlockStack>
-          </Card>
-        </Layout.Section>
-      </Layout>
-    </Page>
-  );
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { admin } = await authenticate.admin(request)
+
+  const response = await admin.graphql(`
+    query ShopMetafield($namespace: String!, $key: String!) {
+      shop {
+        data: metafield(namespace: $namespace, key: $key) {
+          value
+        }
+      }
+    }`,
+    {
+      variables: {
+        "namespace": campaign.namespace,
+        "key": campaign.key
+      },
+    },
+  )
+
+  const responseJson = await response.json()
+  
+  return json(responseJson)
 }
 
-function Code({ children }: { children: React.ReactNode }) {
+export default function Index() {
+  const { data } = useLoaderData<typeof loader>()
+  console.log({data, length: data.length})
+
   return (
-    <Box
-      as="span"
-      padding="025"
-      paddingInlineStart="100"
-      paddingInlineEnd="100"
-      background="bg-surface-active"
-      borderWidth="025"
-      borderColor="border"
-      borderRadius="100"
-    >
-      <code>{children}</code>
-    </Box>
-  );
+    <Page
+      title={`Campaigns`}
+      primaryAction={
+      <Button variant="primary" url="/app/create">
+        New campaign
+      </Button>}>
+      <Card>
+        {data.length
+          ? <ListCampaigns campaigns={data} />
+          : <EmptyCampaigns />
+        }
+      </Card>
+    </Page>
+  )
 }
