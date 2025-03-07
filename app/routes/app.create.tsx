@@ -13,17 +13,33 @@ import campaign from '../utils/shop'
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin } = await authenticate.admin(request)
 
-  const response = await admin.graphql(
-    `query {
+  const response = await admin.graphql(`
+    query ShopMetafield($namespace: String!, $key: String!) {
       shop {
         id
+        data: metafield(namespace: $namespace, key: $key) {
+          value
+        }
       }
     }`,
+    {
+      variables: {
+        "namespace": campaign.namespace,
+        "key": campaign.key
+      },
+    },
   )
 
   const responseJson = await response.json()
 
-  return json(responseJson)
+  const metafieldValue = responseJson.data!.shop!.data!.value;
+  const arrayValue = JSON.parse(metafieldValue);
+
+  if (!arrayValue.length) {
+    return json([])
+  }
+  
+  return json(arrayValue)
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {

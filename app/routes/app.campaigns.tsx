@@ -10,6 +10,7 @@ import campaign from '../utils/shop'
 import { useLoaderData } from "@remix-run/react"
 import EmptyCampaigns from '../components/EmptyData'
 import ListCampaigns from '../components/ListCampaigns'
+import type { ResourceCampaignType } from "app/types/campaign"
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin } = await authenticate.admin(request)
@@ -17,6 +18,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const response = await admin.graphql(`
     query ShopMetafield($namespace: String!, $key: String!) {
       shop {
+        id
         data: metafield(namespace: $namespace, key: $key) {
           value
         }
@@ -31,13 +33,28 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   )
 
   const responseJson = await response.json()
+
+  const metafieldValue = responseJson.data!.shop!.data!.value;
+  const arrayValue = JSON.parse(metafieldValue);
+
+  if (!arrayValue.length) {
+    return []
+  }
+
+  const resourceCampaign = arrayValue.map((item: ResourceCampaignType) => (
+    {
+      id: item.id,
+      url: `/app/campaigns/${item.id}`,
+      name: item.name,
+      status: item.status,
+    }
+  ))
   
-  return json(responseJson)
+  return json(resourceCampaign)
 }
 
 export default function Index() {
-  const { data } = useLoaderData<typeof loader>()
-  console.log({data, length: data.length})
+  const data = useLoaderData<typeof loader>()
 
   return (
     <Page
@@ -46,7 +63,7 @@ export default function Index() {
       <Button variant="primary" url="/app/create">
         New campaign
       </Button>}>
-      <Card>
+      <Card padding="0">
         {data.length
           ? <ListCampaigns campaigns={data} />
           : <EmptyCampaigns />
