@@ -6,7 +6,7 @@ import { NavMenu } from "@shopify/app-bridge-react";
 import polarisStyles from "@shopify/polaris/build/esm/styles.css?url";
 
 import { authenticate } from "../shopify.server";
-import { FooterHelp } from "@shopify/polaris";
+/* import { FooterHelp } from "@shopify/polaris"; */
 
 export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
@@ -27,12 +27,12 @@ export default function App() {
         <Link to="/app/create">New campaign</Link>
       </NavMenu>
       <Outlet />
-      <FooterHelp>
+      {/* <FooterHelp>
         Learn more about{' '}
         <Link to="https://blog.hubspot.es/sales/que-es-downsell">
           downsell
         </Link>
-      </FooterHelp>
+      </FooterHelp> */}
     </AppProvider>
   );
 }

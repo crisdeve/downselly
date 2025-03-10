@@ -1,14 +1,9 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node"
 import { useFetcher, useLoaderData } from "@remix-run/react"
 import { json } from "@remix-run/node"
-import {
-  Button,
-  Card,
-  Page,
-  Text,
-} from "@shopify/polaris"
 import { authenticate } from "../shopify.server"
 import campaign from '../utils/shop'
+import CampaignBuilder from "app/components/CampaignBuilder"
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin } = await authenticate.admin(request)
@@ -85,29 +80,19 @@ export default function Index() {
   const fetcher = useFetcher<typeof action>()
 
   /* const shopify = useAppBridge() */
-  const isLoading = ["loading", "submitting"].includes(fetcher.state) && fetcher.formMethod === "POST"
   const { data } = useLoaderData<typeof loader>()
-  console.log(data)
 
   /* useEffect(() => {
     shopify.toast.show("Product created")
   }, [campaignData, shopify]) */
-  
-  const generate = () => fetcher.submit({}, { method: "POST" })
 
   return (
-    <Page
-      backAction={{content: 'Campaigns', url: '/app/campaigns'}}
-      title="Create a campaign"
-      primaryAction={
-      <Button variant="primary" loading={isLoading} onClick={generate}>
-        Create
-      </Button>}>
-      <Card>
-        <Text as="h2" variant="bodyMd">
-          Content inside a card
-        </Text>
-      </Card>
-    </Page>
-  )
+    <>
+      <CampaignBuilder
+        fetcher={fetcher}
+        data={data}
+        title={'Create a campaign'}
+      />
+    </>
+  );
 }

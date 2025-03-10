@@ -1,0 +1,31 @@
+@import url('./reactflow.css');
+
+.flow {
+  flex-direction: column;
+  display: flex;
+  flex-grow: 1;
+  height: 100%;
+}
+
+.flow aside {
+  border-right: 1px solid #eee;
+  padding: 15px 10px;
+  font-size: 12px;
+  background: #fcfcfc;
+}
+
+.flow .reactflow-wrapper {
+  flex-grow: 1;
+  height: 100%;
+}
+
+@media screen and (min-width: 768px) {
+  .flow {
+    flex-direction: row;
+  }
+ 
+  .flow aside {
+    width: 20%;
+    max-width: 250px;
+  }
+}

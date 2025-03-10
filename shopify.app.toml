@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "8c955a368273071c70301732af753c12"
-application_url = "https://7c01-186-154-52-247.ngrok-free.app"
+application_url = "https://0964-186-154-52-247.ngrok-free.app"
 embedded = true
 name = "downselly"
 handle = "downselly"
@@ -28,9 +28,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://7c01-186-154-52-247.ngrok-free.app/auth/callback",
-  "https://7c01-186-154-52-247.ngrok-free.app/auth/shopify/callback",
-  "https://7c01-186-154-52-247.ngrok-free.app/api/auth/callback"
+  "https://0964-186-154-52-247.ngrok-free.app/auth/callback",
+  "https://0964-186-154-52-247.ngrok-free.app/auth/shopify/callback",
+  "https://0964-186-154-52-247.ngrok-free.app/api/auth/callback"
 ]
 
 [pos]
